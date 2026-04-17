@@ -3,8 +3,10 @@ import car from "../assets/logo/rentalcar.jpg";
 import dl from "../assets/logo/dl.jpg";
 import mitigate from "../assets/logo/mitigate.jpg";
 import ccit from "../assets/logo/ccit.jpg";
+import { useState } from "react";
 
 const ArticlePage = () => {
+  const [expanded, setExpanded] = useState(null);
   return (
     <div className="flex w-full flex-col gap-10 bg-gradient-to-b from-slate-900 via-zinc-900 to-indigo-900 text-white">
       <section className="border-y border-white/10 px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
@@ -41,8 +43,8 @@ const ArticlePage = () => {
 
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <article
-            className="group rounded-2xl border border-white/10 bg-[#111] p-5
-            hover:border-orange-500 transition hover:-translate-y-1"
+            className={`group rounded-2xl border border-white/10 bg-[#111] p-5
+            hover:border-orange-500 transition hover:-translate-y-1 ${expanded === 0 ? 'scale-105' : ''}`}
           >
             <div className="relative flex aspect-video w-full items-center justify-center rounded-xl bg-[#0b0b0b] border border-white/5 overflow-hidden">
               <div className="absolute inset-0 bg-[#ff6b00]/5 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -66,14 +68,21 @@ const ArticlePage = () => {
               ecosystem for disaster risk management.
             </p>
 
-            <Button className="mt-4 w-full" variant="primary">
+            {expanded === 0 && (
+              <div className="mt-4 text-sm leading-6 text-white/70">
+                <p>In this article, I explore the challenges and solutions in migrating MitigatePlus from a mobile-only Flutter app to a comprehensive MERN stack web application. The project involved redesigning the user interface for web responsiveness, implementing real-time data synchronization, and ensuring scalability for disaster management scenarios.</p>
+                <p>Key technologies used: MongoDB, Express.js, React, Node.js, and integration with external APIs for weather and risk data.</p>
+              </div>
+            )}
+
+            <Button className="mt-4 w-full" variant="primary" onClick={() => setExpanded(expanded === 0 ? null : 0)}>
               Read More
             </Button>
           </article>
 
           <article
-            className="group rounded-2xl border border-white/10 bg-[#111] p-5
-            hover:border-orange-500 transition hover:-translate-y-1"
+            className={`group rounded-2xl border border-white/10 bg-[#111] p-5
+            hover:border-orange-500 transition hover:-translate-y-1 ${expanded === 1 ? 'scale-105' : ''}`}
           >
             <div className="relative flex aspect-video w-full items-center justify-center rounded-xl bg-[#0b0b0b] border border-white/5 overflow-hidden">
               <div className="absolute inset-0 bg-[#ff6b00]/5 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -96,14 +105,21 @@ const ArticlePage = () => {
                 Exploring the balance between established UX principles and innovative design in my web development projects.
             </p>
 
-            <Button className="mt-4 w-full" variant="primary">
+            {expanded === 1 && (
+              <div className="mt-4 text-sm leading-6 text-white/70">
+                <p>This piece discusses how I apply Nielsen's 10 usability heuristics in modern web design while pushing creative boundaries. I share case studies from various projects where conventional wisdom was challenged to create unique user experiences.</p>
+                <p>Topics covered: User research, prototyping, accessibility, and performance optimization.</p>
+              </div>
+            )}
+
+            <Button className="mt-4 w-full" variant="primary" onClick={() => setExpanded(expanded === 1 ? null : 1)}>
               Read More
             </Button>
           </article>
 
           <article
-            className="group rounded-2xl border border-white/10 bg-[#111] p-5
-            hover:border-orange-500 transition hover:-translate-y-1"
+            className={`group rounded-2xl border border-white/10 bg-[#111] p-5
+            hover:border-orange-500 transition hover:-translate-y-1 ${expanded === 2 ? 'scale-105' : ''}`}
           >
             <div className="relative flex aspect-video w-full items-center justify-center rounded-xl bg-[#0b0b0b] border border-white/5 overflow-hidden">
               <div className="absolute inset-0 bg-[#ff6b00]/5 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -126,14 +142,21 @@ const ArticlePage = () => {
                 Recognized for outstanding performance in the CCIT IT Certification.
             </p>
 
-            <Button className="mt-4 w-full" variant="primary">
+            {expanded === 2 && (
+              <div className="mt-4 text-sm leading-6 text-white/70">
+                <p>This award highlights my dedication to excellence in information technology. The CCIT certification covered advanced topics in networking, cybersecurity, and software development, demonstrating my comprehensive skills in the IT field.</p>
+                <p>Achievements: Top performer in practical exams, innovative project submission.</p>
+              </div>
+            )}
+
+            <Button className="mt-4 w-full" variant="primary" onClick={() => setExpanded(expanded === 2 ? null : 2)}>
               Read More
             </Button>
           </article>
 
           <article
-            className="group rounded-2xl border border-white/10 bg-[#111] p-5
-            hover:border-orange-500 transition hover:-translate-y-1"
+            className={`group rounded-2xl border border-white/10 bg-[#111] p-5
+            hover:border-orange-500 transition hover:-translate-y-1 ${expanded === 3 ? 'scale-105' : ''}`}
           >
             <div className="relative flex aspect-video w-full items-center justify-center rounded-xl bg-[#0b0b0b] border border-white/5 overflow-hidden">
               <div className="absolute inset-0 bg-[#ff6b00]/5 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -156,7 +179,14 @@ const ArticlePage = () => {
                 A comprehensive car rental system built with the MERN stack, featuring user authentication, dynamic booking, and an intuitive admin dashboard.
             </p>
 
-            <Button className="mt-4 w-full" variant="primary">
+            {expanded === 3 && (
+              <div className="mt-4 text-sm leading-6 text-white/70">
+                <p>This project showcases a full-featured car rental platform. Users can browse available vehicles, make reservations, and manage bookings. Admins have access to a dashboard for inventory management, user oversight, and analytics.</p>
+                <p>Features: JWT authentication, payment integration, real-time availability, email notifications.</p>
+              </div>
+            )}
+
+            <Button className="mt-4 w-full" variant="primary" onClick={() => setExpanded(expanded === 3 ? null : 3)}>
               Read More
             </Button>
           </article>

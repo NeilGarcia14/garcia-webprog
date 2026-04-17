@@ -3,8 +3,17 @@ import logo from "../assets/logo/chesterimage.jpg";
 import skill1 from "../assets/logo/git.png";
 import skill2 from "../assets/logo/reactnext.png";
 import skill3 from "../assets/logo/tailwindcss.png";
+import { useState, useEffect } from "react";
 
 const HomePage = () => {
+  const [errorIndex, setErrorIndex] = useState(null);
+
+  useEffect(() => {
+    if (errorIndex !== null) {
+      const timer = setTimeout(() => setErrorIndex(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorIndex]);
   return (
     <div className="flex w-full flex-col gap-6 bg-gradient-to-b from-slate-900 via-zinc-900 to-slate-900">
       <section className="border-y border-white/10 px-4 py-12 sm:px-6 sm:py-16 lg:px-12 lg:py-24">
@@ -111,9 +120,14 @@ const HomePage = () => {
               Writing utility-first CSS to create custom, beautiful designs
               without bloated code and ensuring responsiveness.
             </p>
-            <Button className="mt-4" variant="primary">
+            <Button className="mt-4" variant="primary" onClick={() => setErrorIndex(0)}>
               View More
             </Button>
+            {errorIndex === 0 && (
+              <p className="mt-2 text-red-400 text-sm animate-pulse">
+                🚧 Oops! This feature is under construction. Check back soon! 🚧
+              </p>
+            )}
           </article>
           
           <article className="rounded-3xl border border-white/10 bg-zinc-900/40 p-4">
@@ -131,9 +145,14 @@ const HomePage = () => {
               Building scalable single-page applications with robust component
               architecture and modern web standards.
             </p>
-            <Button className="mt-4" variant="primary">
+            <Button className="mt-4" variant="primary" onClick={() => setErrorIndex(1)}>
               View More
             </Button>
+            {errorIndex === 1 && (
+              <p className="mt-2 text-red-400 text-sm animate-pulse">
+                🚧 Oops! This feature is under construction. Check back soon! 🚧
+              </p>
+            )}
           </article>
 
           <article className="rounded-3xl border border-white/10 bg-zinc-900/40 p-4">
@@ -151,9 +170,14 @@ const HomePage = () => {
               Maintaining clean codebases and collaborating effectively through
               version control and branching strategies.
             </p>
-            <Button className="mt-4" variant="primary">
+            <Button className="mt-4" variant="primary" onClick={() => setErrorIndex(2)}>
               View More
             </Button>
+            {errorIndex === 2 && (
+              <p className="mt-2 text-red-400 text-sm animate-pulse">
+                🚧 Oops! This feature is under construction. Check back soon! 🚧
+              </p>
+            )}
           </article>
         </div>
       </section>
