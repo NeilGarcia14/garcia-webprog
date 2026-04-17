@@ -4,9 +4,16 @@ import skill1 from "../assets/logo/git.png";
 import skill2 from "../assets/logo/reactnext.png";
 import skill3 from "../assets/logo/tailwindcss.png";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
   const [errorIndex, setErrorIndex] = useState(null);
+  const navigate = useNavigate();
+
+  const handleViewMore = (index) => {
+    setErrorIndex(index);
+    setTimeout(() => navigate("/notfound"), 800);
+  };
 
   useEffect(() => {
     if (errorIndex !== null) {
@@ -120,12 +127,12 @@ const HomePage = () => {
               Writing utility-first CSS to create custom, beautiful designs
               without bloated code and ensuring responsiveness.
             </p>
-            <Button className="mt-4" variant="primary" onClick={() => setErrorIndex(0)}>
+            <Button className="mt-4" variant="primary" onClick={() => handleViewMore(0)}>
               View More
             </Button>
             {errorIndex === 0 && (
               <p className="mt-2 text-red-400 text-sm animate-pulse">
-                🚧 Oops! This feature is under construction. Check back soon! 🚧
+                🚫 404 Error: This feature is unavailable. Redirecting to NotFound page...
               </p>
             )}
           </article>
@@ -145,12 +152,12 @@ const HomePage = () => {
               Building scalable single-page applications with robust component
               architecture and modern web standards.
             </p>
-            <Button className="mt-4" variant="primary" onClick={() => setErrorIndex(1)}>
+            <Button className="mt-4" variant="primary" onClick={() => handleViewMore(1)}>
               View More
             </Button>
             {errorIndex === 1 && (
               <p className="mt-2 text-red-400 text-sm animate-pulse">
-                🚧 Oops! This feature is under construction. Check back soon! 🚧
+                🚫 404 Error: This feature is unavailable. Redirecting to NotFound page...
               </p>
             )}
           </article>
@@ -170,17 +177,18 @@ const HomePage = () => {
               Maintaining clean codebases and collaborating effectively through
               version control and branching strategies.
             </p>
-            <Button className="mt-4" variant="primary" onClick={() => setErrorIndex(2)}>
+            <Button className="mt-4" variant="primary" onClick={() => handleViewMore(2)}>
               View More
             </Button>
             {errorIndex === 2 && (
               <p className="mt-2 text-red-400 text-sm animate-pulse">
-                🚧 Oops! This feature is under construction. Check back soon! 🚧
+                🚫 404 Error: This feature is unavailable. Redirecting to NotFound page...
               </p>
             )}
           </article>
         </div>
       </section>
+
     </div>
   );
 };
