@@ -1,14 +1,14 @@
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 // HomePage Structure
-import Layout from "./components/Layout";
+import Layout from "./layouts/Layout";
 import ArticleListPage from "./pages/LandingPages/ArticleListPage";
 import ArticlePage from "./pages/LandingPages/ArticlePage";
 import HomePage from "./pages/LandingPages/HomePage";
 import AboutPage from "./pages/LandingPages/AboutPage";
-import AuthLayout from "./components/AuthLayout";
-import SignInPage from "./pages/SignInPage";
-import SignUpPage from "./pages/SignUpPage";
+import AuthLayout from "./layouts/AuthLayout";
+import SignInPage from "./pages/AuthPages/SignInPage";
+import SignUpPage from "./pages/AuthPages/SignUpPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 
@@ -56,10 +56,10 @@ const routes = [
 const router = createBrowserRouter(routes);
 
 function App() {
-  return(
-  <>
-   <RouterProvider router={router} />;
-  </>
+  return (
+    <>
+      <RouterProvider router={router} />
+    </>
   );
 }
 

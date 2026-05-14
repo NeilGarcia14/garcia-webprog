@@ -1,8 +1,8 @@
 import Button from "../../components/Button";
-import logo from "../assets/logo/chesterimage.jpg";
-import skill1 from "../assets/logo/git.png";
-import skill2 from "../assets/logo/reactnext.png";
-import skill3 from "../assets/logo/tailwindcss.png";
+import logo from "../../assets/logo/chesterimage.jpg";
+import skill1 from "../../assets/logo/git.png";
+import skill2 from "../../assets/logo/reactnext.png";
+import skill3 from "../../assets/logo/tailwindcss.png";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 

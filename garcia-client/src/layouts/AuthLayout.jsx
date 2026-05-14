@@ -1,27 +1,43 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 
 const AuthLayout = () => {
   return (
-    <section className="min-h-screen bg-zinc-100 text-zinc-900">
-      <div className="grid min-h-screen w-full lg:grid-cols-[1fr_0.95fr]">
-        {/* Left side illustration */}
-        <div className="flex items-center justify-center border-b-2 border-zinc-300 bg-zinc-200 p-8 sm:p-10 lg:border-b-0 lg:border-r-2 lg:border-zinc-300 lg:p-16">
-          <div className="flex w-full max-w-md items-center justify-center rounded-[2rem] border-2 border-dashed border-zinc-300 bg-zinc-100/60 p-8 sm:p-10">
-            <div className="relative aspect-square w-full max-w-[18rem] border-[10px] border-zinc-300">
-              {/* Decorative cross lines */}
-              <span className="absolute left-1/2 top-0 h-full w-2 -translate-x-1/2 rotate-45 bg-zinc-50/90" />
-              <span className="absolute left-1/2 top-0 h-full w-2 -translate-x-1/2 -rotate-45 bg-zinc-50/90" />
-            </div>
-          </div>
+    <section className="min-h-screen grid lg:grid-cols-[0.7fr_1.3fr] bg-gradient-to-br from-slate-950 to-slate-900 text-white">
+      {/* Left side content */}
+      <div className="flex flex-col justify-center px-10 py-16 lg:px-16">
+        <p className="text-sm font-semibold uppercase tracking-[0.35em] text-lime-400">
+          Sign In
+        </p>
+        <h1 className="mt-6 text-4xl font-bold leading-tight max-w-md">
+          Access your developer workspace.
+        </h1>
+        <p className="mt-6 text-base leading-7 text-slate-300 max-w-md">
+          Manage projects, settings, and drafts in one place with a consistent experience across devices.
+        </p>
+        <div className="mt-10 space-y-4 rounded-3xl bg-white/5 p-6 ring-1 ring-white/10 max-w-md">
+          <p className="font-semibold text-white">Why sign in?</p>
+          <ul className="space-y-3 text-sm text-slate-400">
+            <li>• Store progress and manage your projects.</li>
+            <li>• Keep settings, links, and article drafts in one place.</li>
+            <li>• Use a consistent site experience across devices.</li>
+          </ul>
         </div>
 
-        {/* Right side content */}
-        <main className="flex items-center bg-zinc-50 px-6 py-10 sm:px-10 lg:px-16">
-          <div className="mx-auto w-full max-w-md">
-            <Outlet />
-          </div>
-        </main>
+        {/* Back to Homepage */}
+        <Link
+          to="/"
+          className="mt-10 inline-block rounded-3xl border border-lime-400 px-6 py-3 text-sm font-semibold text-lime-400 transition hover:bg-lime-400 hover:text-slate-950"
+        >
+          ← Back to Homepage
+        </Link>
       </div>
+
+      {/* Right side content */}
+      <main className="flex items-center justify-center px-10 py-16 lg:px-24">
+        <div className="w-full max-w-md rounded-[2rem] bg-slate-900/80 p-12 shadow-2xl ring-1 ring-white/10 backdrop-blur-md">
+          <Outlet />
+        </div>
+      </main>
     </section>
   );
 };

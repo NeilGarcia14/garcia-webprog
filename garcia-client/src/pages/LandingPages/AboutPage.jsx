@@ -1,9 +1,9 @@
 import Button from "../../components/Button";
-import mema from "../assets/logo/it.png";
-import ccit from "../assets/logo/ccit.jpg";
-import award from "../assets/logo/dl.jpg";
-import rental from "../assets/logo/rentalcar.jpg";
-import mitigate from "../assets/logo/mitigate.jpg";
+import mema from "../../assets/logo/it.png";
+import ccit from "../../assets/logo/ccit.jpg";
+import award from "../../assets/logo/dl.jpg";
+import rental from "../../assets/logo/rentalcar.jpg";
+import mitigate from "../../assets/logo/mitigate.jpg";
 
 const AboutPage = () => {
   return (
