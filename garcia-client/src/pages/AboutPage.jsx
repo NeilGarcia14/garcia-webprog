@@ -14,7 +14,7 @@ const AboutPage = () => {
             <div className="flex aspect-square items-center justify-center rounded-2xl overflow-hidden">
               <img
                 src={mema}
-                alt="Ellica Chris"
+                alt="Chester Garcia"
                 className="h-full w-full object-cover scale-110"
               />
             </div>
