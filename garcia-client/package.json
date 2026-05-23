@@ -13,7 +13,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^5.15.14",
-    "@mui/material": "^5.15.14",
+    "@mui/material": "^5.18.0",
     "@mui/x-charts": "^9.2.0",
     "@mui/x-data-grid": "^8.28.6",
     "@tailwindcss/postcss": "^4.2.2",
