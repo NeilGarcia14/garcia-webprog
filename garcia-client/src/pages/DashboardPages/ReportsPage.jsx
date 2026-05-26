@@ -10,6 +10,18 @@ import {
   Chip,
   Container,
   Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  FormControlLabel,
+  RadioGroup,
+  Radio,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
 } from "@mui/material";
 import {Print as PrintIcon} from "@mui/icons-material";
 import { BarChart } from "@mui/x-charts/BarChart";
@@ -76,6 +88,10 @@ const axisStyle = {
 
 export default function ReportsPage() {
   const [period, setPeriod] = useState("monthly");
+  const [printDialogOpen, setPrintDialogOpen] = useState(false);
+  const [pageSelection, setPageSelection] = useState("all");
+  const [customPageRange, setCustomPageRange] = useState("");
+  const [outputFormat, setOutputFormat] = useState("pdf");
   const handlePrint = () => {
     const printContent = `
       <!DOCTYPE html>
@@ -83,105 +99,520 @@ export default function ReportsPage() {
         <head>
           <title>Reports Dashboard</title>
           <meta charset="utf-8" />
+          <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
+            html, body {
+              width: 100%;
+              height: 100%;
+            }
             body {
-              font-family: Arial, sans-serif;
-              padding: 40px;
-              background: white;
-              color: #333;
+              font-family: 'DM Sans', sans-serif;
+              background: #0f0f0f;
+              color: #f1f5f9;
+              line-height: 1.6;
+            }
+            @page {
+              size: A4;
+              margin: 20mm;
+              @bottom-center {
+                content: "Page " counter(page) " of " counter(pages);
+                font-size: 10px;
+                color: #475569;
+              }
+            }
+            .page-break {
+              page-break-after: always;
             }
             .header {
               text-align: center;
-              margin-bottom: 30px;
-              border-bottom: 3px solid #32cd32;
-              padding-bottom: 20px;
+              margin-bottom: 40px;
+              border-bottom: 2px solid #32cd32;
+              padding-bottom: 30px;
+              page-break-after: avoid;
             }
             .title {
-              font-size: 32px;
-              font-weight: bold;
-              color: #32cd32;
+              font-family: 'Syne', sans-serif;
+              font-size: 36px;
+              font-weight: 800;
+              color: #f1f5f9;
               margin-bottom: 10px;
             }
             .subtitle {
               font-size: 14px;
-              color: #666;
+              color: #64748b;
+              margin-bottom: 10px;
             }
             .date {
               font-size: 12px;
-              color: #999;
+              color: #475569;
               margin-top: 10px;
             }
             .stats {
               display: flex;
               flex-wrap: wrap;
               gap: 20px;
-              margin: 30px 0;
+              margin: 40px 0;
+              page-break-inside: avoid;
             }
             .stat-card {
               flex: 1;
-              min-width: 180px;
-              border: 2px solid #32cd32;
-              border-radius: 10px;
-              padding: 20px;
+              min-width: 160px;
+              border: 1px solid rgba(255,255,255,0.06);
+              border-radius: 16px;
+              padding: 24px;
               text-align: center;
-              background: #fafafa;
+              background: #161616;
+              page-break-inside: avoid;
             }
             .stat-label {
-              font-size: 12px;
+              font-size: 11px;
               text-transform: uppercase;
-              color: #666;
+              color: #475569;
               font-weight: 600;
               letter-spacing: 1px;
             }
             .stat-value {
+              font-family: 'Syne', sans-serif;
               font-size: 28px;
-              font-weight: bold;
-              margin-top: 10px;
+              font-weight: 800;
+              margin-top: 12px;
               color: #32cd32;
             }
             h3 {
-              margin-top: 30px;
-              margin-bottom: 15px;
-              color: #333;
+              margin-top: 40px;
+              margin-bottom: 20px;
+              color: #f1f5f9;
+              font-family: 'Syne', sans-serif;
               font-size: 18px;
-              border-bottom: 2px solid #32cd32;
-              padding-bottom: 10px;
+              font-weight: 700;
+              border-bottom: 1px solid rgba(255,255,255,0.06);
+              padding-bottom: 15px;
+              page-break-after: avoid;
+            }
+            .chart-section {
+              page-break-inside: avoid;
+              margin-bottom: 30px;
+              border: 1px solid rgba(255,255,255,0.06);
+              border-radius: 16px;
+              padding: 24px;
+              background: #161616;
             }
             table {
               width: 100%;
               border-collapse: collapse;
               margin: 20px 0;
+              page-break-inside: avoid;
             }
             th, td {
-              border: 1px solid #ddd;
-              padding: 12px;
+              border: 1px solid rgba(255,255,255,0.06);
+              padding: 14px;
               text-align: left;
             }
             th {
               background: #32cd32;
-              color: white;
-              font-weight: bold;
+              color: #000;
+              font-weight: 700;
+              font-family: 'Syne', sans-serif;
+              page-break-inside: avoid;
+            }
+            tr {
+              page-break-inside: avoid;
             }
             tr:nth-child(even) {
-              background: #f9f9f9;
+              background: rgba(255,255,255,0.02);
+            }
+            td {
+              color: #e2e8f0;
+            }
+            .chart-item {
+              page-break-inside: avoid;
+              border: 1px solid rgba(255,255,255,0.06);
+              border-radius: 16px;
+              padding: 24px;
+              background: #161616;
+              margin-bottom: 20px;
+            }
+            .chart-title {
+              font-family: 'Syne', sans-serif;
+              font-size: 16px;
+              font-weight: 700;
+              color: #f1f5f9;
+              margin-bottom: 15px;
             }
             .footer {
               text-align: center;
               font-size: 11px;
-              color: #999;
-              margin-top: 40px;
+              color: #475569;
+              margin-top: 50px;
               padding-top: 20px;
-              border-top: 1px solid #ddd;
+              border-top: 1px solid rgba(255,255,255,0.06);
+              page-break-before: avoid;
+            }
+            .legend {
+              display: flex;
+              gap: 20px;
+              margin: 15px 0;
+              flex-wrap: wrap;
+              page-break-inside: avoid;
+            }
+            .legend-item {
+              display: flex;
+              align-items: center;
+              gap: 8px;
+              font-size: 12px;
+              color: #64748b;
+            }
+            .legend-color {
+              width: 12px;
+              height: 12px;
+              border-radius: 2px;
+            }
+            .section-divider {
+              margin: 40px 0;
+              border-top: 2px solid rgba(50,205,50,0.2);
+              page-break-before: auto;
             }
             @media print {
-              body { padding: 20px; }
-              .stat-card { page-break-inside: avoid; }
-              table { page-break-inside: avoid; }
+              body { 
+                background: white; 
+                color: #333; 
+                padding: 0;
+              }
+              .header { 
+                border-bottom: 2px solid #000; 
+                page-break-after: avoid;
+              }
+              .stat-card { 
+                background: #f5f5f5; 
+                border: 1px solid #ddd; 
+              }
+              .chart-section { 
+                background: #f5f5f5; 
+                border: 1px solid #ddd; 
+              }
+              .chart-item { 
+                background: #f5f5f5; 
+                border: 1px solid #ddd; 
+              }
+              .title { 
+                color: #000; 
+              }
+              .subtitle { 
+                color: #666; 
+              }
+              .date { 
+                color: #999; 
+              }
+              .stat-value { 
+                color: #000; 
+              }
+              h3 { 
+                color: #000; 
+                border-bottom: 1px solid #ddd; 
+              }
+              .chart-title { 
+                color: #000; 
+              }
+              td { 
+                color: #333; 
+                border: 1px solid #ddd;
+              }
+              th { 
+                background: #32cd32; 
+                color: #000;
+                border: 1px solid #32cd32;
+              }
+              .footer { 
+                border-top: 1px solid #ddd; 
+                color: #999; 
+              }
+              .legend-item { 
+                color: #666; 
+              }
+              .section-divider {
+                border-top: 2px solid #ddd;
+              }
+              table {
+                border: 1px solid #ddd;
+              }
+              tr:nth-child(even) {
+                background: #f9f9f9;
+              }
+            }
+            .print-modal {
+              position: fixed;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background: #fff;
+              display: flex;
+              align-items: stretch;
+              justify-content: flex-start;
+              z-index: 9999;
+              font-family: 'DM Sans', sans-serif;
+            }
+            .print-modal-content {
+              background: #2a2a2a;
+              border-right: 1px solid rgba(255,255,255,0.1);
+              padding: 24px;
+              width: 30%;
+              min-width: 300px;
+              max-width: 400px;
+              height: 100vh;
+              overflow-y: auto;
+              box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+              margin: 0;
+            }
+            .print-modal-preview {
+              flex: 1;
+              background: #fff;
+              overflow: auto;
+              padding: 20px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+            .print-modal-preview-content {
+              background: #fff;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+              padding: 40px;
+              max-width: 700px;
+              width: 100%;
+              font-family: 'Arial', sans-serif;
+              color: #333;
+              line-height: 1.6;
+            }
+            .print-modal-preview-title {
+              font-size: 28px;
+              font-weight: 800;
+              color: #000;
+              margin-bottom: 10px;
+            }
+            .print-modal-preview-subtitle {
+              font-size: 13px;
+              color: #666;
+              margin-bottom: 30px;
+            }
+            .print-modal-title {
+              font-family: 'Syne', sans-serif;
+              font-size: 20px;
+              font-weight: 700;
+              color: #f1f5f9;
+              margin-bottom: 24px;
+            }
+            .print-modal-section {
+              margin-bottom: 24px;
+            }
+            .print-modal-label {
+              font-family: 'Syne', sans-serif;
+              font-size: 13px;
+              font-weight: 600;
+              color: #e2e8f0;
+              margin-bottom: 12px;
+              display: block;
+            }
+            .print-modal-option {
+              display: flex;
+              align-items: center;
+              margin-bottom: 12px;
+              cursor: pointer;
+            }
+            .print-modal-radio {
+              width: 18px;
+              height: 18px;
+              border: 2px solid #32cd32;
+              border-radius: 50%;
+              margin-right: 12px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              cursor: pointer;
+            }
+            .print-modal-radio.checked {
+              background: #32cd32;
+            }
+            .print-modal-radio.checked::after {
+              content: '';
+              width: 6px;
+              height: 6px;
+              background: #000;
+              border-radius: 50%;
+            }
+            .print-modal-text {
+              color: #cbd5e1;
+              font-size: 14px;
+              cursor: pointer;
+            }
+            .print-modal-input {
+              width: 100%;
+              padding: 8px 12px;
+              border: 1px solid rgba(255,255,255,0.15);
+              border-radius: 6px;
+              background: rgba(255,255,255,0.05);
+              color: #f1f5f9;
+              font-family: 'DM Sans', sans-serif;
+              margin-top: 12px;
+            }
+            .print-modal-divider {
+              height: 1px;
+              background: rgba(255,255,255,0.06);
+              margin: 20px 0;
+            }
+            .print-modal-buttons {
+              display: flex;
+              gap: 12px;
+              margin-top: 24px;
+            }
+            .print-modal-btn {
+              flex: 1;
+              padding: 12px 20px;
+              border: none;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: 600;
+              font-family: 'Syne', sans-serif;
+              cursor: pointer;
+              transition: all 0.3s ease;
+            }
+            .print-modal-btn-cancel {
+              background: rgba(255,255,255,0.1);
+              color: #f1f5f9;
+            }
+            .print-modal-btn-cancel:hover {
+              background: rgba(255,255,255,0.15);
+            }
+            .print-modal-btn-save {
+              background: #32cd32;
+              color: #000;
+              font-weight: 700;
+            }
+            .print-modal-btn-save:hover {
+              background: #2cb82c;
+            }
+            @media print {
+              .print-modal {
+                display: none;
+              }
             }
           </style>
         </head>
-        <body onload="window.print()">
+        <body>
+          <!-- Print Dialog Modal -->
+          <div class="print-modal" id="printModal">
+            <div class="print-modal-content">
+              <div class="print-modal-title">Print</div>
+              
+              <!-- Total Pages Info -->
+              <div class="print-modal-section">
+                <span style="color: #94a3b8; font-size: 13px;">Total: 2 pages</span>
+              </div>
+
+              <!-- Printer Selection -->
+              <div class="print-modal-section">
+                <label class="print-modal-label">Printer</label>
+                <select style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; background: rgba(255,255,255,0.05); color: #f1f5f9; font-family: 'DM Sans', sans-serif;" id="printerSelect">
+                  <option value="pdf" style="background: #161616; color: #f1f5f9;">Save as PDF</option>
+                  <option value="printer" style="background: #161616; color: #f1f5f9;">Print to Printer</option>
+                </select>
+              </div>
+
+              <div class="print-modal-divider"></div>
+
+              <!-- Pages Selection -->
+              <div class="print-modal-section">
+                <label class="print-modal-label">Pages</label>
+                
+                <div class="print-modal-option" onclick="setPageSelection(this, 'all')">
+                  <div class="print-modal-radio checked" id="radio-all"></div>
+                  <span class="print-modal-text">All</span>
+                </div>
+
+                <div class="print-modal-option" onclick="setPageSelection(this, 'odd')">
+                  <div class="print-modal-radio" id="radio-odd"></div>
+                  <span class="print-modal-text">Odd pages only</span>
+                </div>
+
+                <div class="print-modal-option" onclick="setPageSelection(this, 'even')">
+                  <div class="print-modal-radio" id="radio-even"></div>
+                  <span class="print-modal-text">Even pages only</span>
+                </div>
+
+                <div class="print-modal-option" onclick="setPageSelection(this, 'custom')">
+                  <div class="print-modal-radio" id="radio-custom"></div>
+                  <span class="print-modal-text">Custom</span>
+                </div>
+                <input type="text" class="print-modal-input" id="customRange" placeholder="e.g. 1-5, 8, 11-13" />
+              </div>
+
+              <div style="margin-top: 12px;">
+                <button style="background: none; border: none; color: #32cd32; cursor: pointer; font-size: 14px; padding: 0; text-decoration: underline;">More settings</button>
+              </div>
+
+              <!-- Buttons -->
+              <div class="print-modal-buttons">
+                <button class="print-modal-btn print-modal-btn-cancel" onclick="closePrintModal()">Cancel</button>
+                <button class="print-modal-btn print-modal-btn-save" onclick="confirmPrint()">Save</button>
+              </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="print-modal-preview">
+              <div class="print-modal-preview-content">
+                <div class="print-modal-preview-title">Reports Summary</div>
+                <div class="print-modal-preview-subtitle">Analytics overview for generated reports, category breakdown, and completion performance.<br>Prepared on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}</div>
+                
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #333; font-size: 16px; border-bottom: 2px solid #32cd32; padding-bottom: 10px;">Monthly Report Output</h3>
+                <p style="color: #666; font-size: 12px; margin-bottom: 15px;">This chart compares how many reports were generated and how many were completed across the last four months.</p>
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                  <div style="height: 150px; background: linear-gradient(to bottom, #e0e0e0 0%, #f5f5f5 100%); border-radius: 4px; display: flex; align-items: flex-end; justify-content: space-around; padding: 10px;">
+                    <div style="width: 30px; height: 60px; background: #2196F3; border-radius: 2px;"></div>
+                    <div style="width: 30px; height: 45px; background: #FF9800; border-radius: 2px;"></div>
+                    <div style="width: 30px; height: 75px; background: #2196F3; border-radius: 2px;"></div>
+                    <div style="width: 30px; height: 55px; background: #FF9800; border-radius: 2px;"></div>
+                    <div style="width: 30px; height: 70px; background: #2196F3; border-radius: 2px;"></div>
+                    <div style="width: 30px; height: 50px; background: #FF9800; border-radius: 2px;"></div>
+                  </div>
+                </div>
+
+                <h3 style="margin-top: 30px; margin-bottom: 15px; color: #333; font-size: 16px; border-bottom: 2px solid #32cd32; padding-bottom: 10px;">Report Category Share</h3>
+                <p style="color: #666; font-size: 12px; margin-bottom: 15px;">This chart shows the distribution of report requests by category for the current reporting period.</p>
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; height: 120px; display: flex; align-items: center; justify-content: center;">
+                  <div style="width: 100px; height: 100px; border-radius: 50%; background: conic-gradient(#2196F3 0deg 144deg, #FF9800 144deg 234deg, #F44336 234deg 306deg, #4CAF50 306deg 360deg);"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <script>
+            let selectedPageOption = 'all';
+
+            function setPageSelection(element, option) {
+              selectedPageOption = option;
+              document.getElementById('radio-all').classList.remove('checked');
+              document.getElementById('radio-odd').classList.remove('checked');
+              document.getElementById('radio-even').classList.remove('checked');
+              document.getElementById('radio-custom').classList.remove('checked');
+              document.getElementById('radio-' + option).classList.add('checked');
+            }
+
+            function closePrintModal() {
+              document.getElementById('printModal').style.display = 'none';
+              window.close();
+            }
+
+            function confirmPrint() {
+              const printer = document.getElementById('printerSelect').value;
+              const customRange = document.getElementById('customRange').value;
+              console.log('Print settings:', { printer, selectedPageOption, customRange });
+              
+              // Auto-print after a short delay
+              setTimeout(() => {
+                window.print();
+              }, 300);
+            }
+          </script>
           <div class="header">
             <div class="title">Reports Summary</div>
             <div class="subtitle">Analytics overview for generated reports, category breakdown, and completion performance.</div>
@@ -189,69 +620,74 @@ export default function ReportsPage() {
           </div>
           
           <div class="stats">
-            <div class="stat-card">
-              <div class="stat-label">AVG. MONTHLY REVENUE</div>
-              <div class="stat-value">₱17,380</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">TOTAL ANNUAL REVENUE</div>
-              <div class="stat-value">₱678,080</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">PEAK MONTH</div>
-              <div class="stat-value">March</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-label">ANNUAL GROWTH</div>
-              <div class="stat-value">+14%</div>
-            </div>
+            ${summaryStats.map((s) => `
+              <div class="stat-card">
+                <div class="stat-label">${s.label}</div>
+                <div class="stat-value">${s.label === "AVG. MONTHLY REVENUE" ? "₱17,380" : s.label === "TOTAL ANNUAL REVENUE" ? "₱678,080" : s.label === "PEAK MONTH" ? "March" : "+14%"}</div>
+              </div>
+            `).join("")}
           </div>
 
+          <div class="section-divider"></div>
+
           <h3>Monthly Report Output</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Revenue (₱)</th>
-                <th>Expenses (₱)</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${months
-                .slice(0, 6)
-                .map(
-                  (m, i) =>
-                    `<tr><td>${m}</td><td>₱${revenueData[i].toLocaleString()}</td><td>₱${expensesData[i].toLocaleString()}</td></tr>`,
-                )
-                .join("")}
-            </tbody>
-          </table>
+          <div class="chart-section">
+            <div class="legend">
+              <div class="legend-item"><div class="legend-color" style="background: #32cd32;"></div>Revenue</div>
+              <div class="legend-item"><div class="legend-color" style="background: #22d3ee;"></div>Expenses</div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Revenue (₱)</th>
+                  <th>Expenses (₱)</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${months
+                  .map(
+                    (m, i) =>
+                      `<tr><td>${m}</td><td>₱${revenueData[i].toLocaleString()}</td><td>₱${expensesData[i].toLocaleString()}</td></tr>`,
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section-divider"></div>
 
           <h3>Report Category Share</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Category</th>
-                <th>Percentage</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${pieData.map((p) => `<tr><td>${p.label}</td><td>${p.value}%</td></tr>`).join("")}
-            </tbody>
-          </table>
+          <div class="chart-section">
+            <table>
+              <thead>
+                <tr>
+                  <th>Category</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${pieData.map((p) => `<tr><td>${p.label}</td><td>${p.value}%</td></tr>`).join("")}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section-divider"></div>
 
           <h3>Monthly Visitors Trend</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Month</th>
-                <th>Visitors</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${months.map((m, i) => `<tr><td>${m}</td><td>${visitorData[i].toLocaleString()}</td></tr>`).join("")}
-            </tbody>
-          </table>
+          <div class="chart-section">
+            <table>
+              <thead>
+                <tr>
+                  <th>Month</th>
+                  <th>Visitors</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${months.map((m, i) => `<tr><td>${m}</td><td>${visitorData[i].toLocaleString()}</td></tr>`).join("")}
+              </tbody>
+            </table>
+          </div>
 
           <div class="footer">
             Generated from Reports Dashboard | Data represents current fiscal year
@@ -272,6 +708,19 @@ export default function ReportsPage() {
       console.error("Print error:", error);
       alert("Error generating report. Please try again.");
     }
+  };
+
+  const handleOpenPrintDialog = () => {
+    setPrintDialogOpen(true);
+  };
+
+  const handleClosePrintDialog = () => {
+    setPrintDialogOpen(false);
+  };
+
+  const handlePrintConfirm = () => {
+    handlePrint();
+    setPrintDialogOpen(false);
   };
 
   return (
@@ -626,6 +1075,108 @@ export default function ReportsPage() {
           />
         </CardContent>
       </Card>
+
+      {/* Print Dialog */}
+      <Dialog 
+        open={printDialogOpen} 
+        onClose={handleClosePrintDialog}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle sx={{ fontFamily: "'Syne', sans-serif", fontWeight: 700 }}>
+          Print
+        </DialogTitle>
+        <DialogContent sx={{ py: 3 }}>
+          {/* Printer/Format Selection */}
+          <Box mb={3}>
+            <Typography sx={{ fontFamily: "'Syne', sans-serif", fontWeight: 600, mb: 1 }}>
+              Printer
+            </Typography>
+            <FormControl fullWidth>
+              <Select
+                value={outputFormat}
+                onChange={(e) => setOutputFormat(e.target.value)}
+                sx={{ bgcolor: "#f5f5f5" }}
+              >
+                <MenuItem value="pdf">Save as PDF</MenuItem>
+                <MenuItem value="print">Print to Printer</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
+          <Divider sx={{ my: 3 }} />
+
+          {/* Pages Selection */}
+          <Box>
+            <Typography sx={{ fontFamily: "'Syne', sans-serif", fontWeight: 600, mb: 2 }}>
+              Pages
+            </Typography>
+            <RadioGroup
+              value={pageSelection}
+              onChange={(e) => setPageSelection(e.target.value)}
+            >
+              <FormControlLabel
+                value="all"
+                control={<Radio />}
+                label="All"
+              />
+              <FormControlLabel
+                value="odd"
+                control={<Radio />}
+                label="Odd pages only"
+              />
+              <FormControlLabel
+                value="even"
+                control={<Radio />}
+                label="Even pages only"
+              />
+              <Box display="flex" alignItems="center" gap={1} mt={1}>
+                <Radio
+                  value="custom"
+                  checked={pageSelection === "custom"}
+                  onChange={(e) => setPageSelection(e.target.value)}
+                />
+                <TextField
+                  placeholder="e.g. 1-5, 8, 11-13"
+                  value={customPageRange}
+                  onChange={(e) => setCustomPageRange(e.target.value)}
+                  onClick={() => setPageSelection("custom")}
+                  size="small"
+                  sx={{ width: 200 }}
+                />
+              </Box>
+            </RadioGroup>
+          </Box>
+
+          <Box mt={2}>
+            <Button 
+              variant="text" 
+              sx={{ color: "#32cd32", textTransform: "none" }}
+            >
+              More settings
+            </Button>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button 
+            onClick={handleClosePrintDialog}
+            sx={{ color: "#333" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handlePrintConfirm}
+            variant="contained"
+            sx={{
+              bgcolor: "#32cd32",
+              color: "#fff",
+              "&:hover": { bgcolor: "#2cb82c" }
+            }}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
