@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
+import { loginUser } from "../../services/api";
 
 const inputClasses =
   "mt-2 w-full rounded-3xl border border-slate-300 bg-slate-100 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-lime-500 focus:bg-white";
@@ -15,8 +16,7 @@ const SignInPage = () => {
     e.preventDefault();
     // Navigate to dashboard
     try {
-      const { data } = await loginUser({ email, password });
-      console.log("Login successful", data);
+      const data = await loginUser({ email, password });
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("firstName", data.firstName);
@@ -24,8 +24,7 @@ const SignInPage = () => {
 
       navigate("/dashboard", { state: { firstName: data.firstName, type: data.type } });
     } catch (error) {
-      setError(error?.responseData?.data?.message || "Login failed. Please try again.");
-      console.error("Login failed:", error.responseData?.data?.message || error.message);
+      setError(error.message || "Login failed. Please try again.");
     }
   };
 

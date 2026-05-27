@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const getUsers = async (req, res) => {
     try {
-        const users = await User.find({}, '-password');
+        const users = await User.find({}, '-password').sort({ createdAt: -1 });
         res.json({users});
     } catch (error) {
         res.status(500).json({message: error.message}); 
@@ -17,11 +17,20 @@ const createUser = async (req, res) => {
             return res.status(400).json({message: 'Password is required'});
         }
 
+        const type = req.body.type || req.body.role || 'Viewer';
+        const isActive = req.body.isActive ?? req.body.status !== 'Inactive';
         const hashedPassword = await bcrypt.hash(req.body.password, 10);
 
-        const user = await User.create({ ...req.body, password: hashedPassword });
+        const user = await User.create({
+            ...req.body,
+            type,
+            isActive,
+            password: hashedPassword,
+        });
+        const safeUser = user.toObject();
+        delete safeUser.password;
 
-        res.status(201).json(user);
+        res.status(201).json(safeUser);
     } catch (error) {
         res.status(400).json({message: error.message});
     }
@@ -30,10 +39,16 @@ const createUser = async (req, res) => {
 const updateUser = async (req, res) => {
     try{
 
-        if(req.body.password) {
-            req.body.password = await bcrypt.hash(req.body.password, 10);
+    const updates = { ...req.body };
+    if (updates.role && !updates.type) updates.type = updates.role;
+    if (updates.status) updates.isActive = updates.status !== 'Inactive';
+
+    if(updates.password) {
+            updates.password = await bcrypt.hash(updates.password, 10);
+    } else {
+        delete updates.password;
     }
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true});
+    const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true}).select('-password');
     res.json(user);
 } catch (error) {
     res.status(400).json({message: error.message});
@@ -62,6 +77,10 @@ const loginUser = async (req, res) => {
             return res.status(403).json({ message: 'Your account is inactive. Please contact support.' });
         }
 
+        if (user.type === 'Viewer') {
+            return res.status(403).json({ message: 'Viewers are not allowed to log in.' });
+        }
+
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid credentials' });
@@ -69,7 +88,7 @@ const loginUser = async (req, res) => {
 
         const token = jwt.sign(
             { id: user._id, email: user.email, type: user.type },
-            process.env.JWT_SECRET,
+            process.env.JWT_SECRET || 'garcia-dev-secret',
             { expiresIn: '1h' }
         );
 

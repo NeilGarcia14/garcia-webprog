@@ -1,10 +1,27 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import Button from "../../components/Button";
 import articles from "../../assets/data/article-content.js";
+import { getArticleByName } from "../../services/api";
 
 const ArticlePage = () => {
   const { name } = useParams();
-  const article = articles.find((article) => article.name === name);
+  const [article, setArticle] = useState(() =>
+    articles.find((article) => article.name === name)
+  );
+
+  useEffect(() => {
+    const loadArticle = async () => {
+      try {
+        const data = await getArticleByName(name);
+        setArticle(data);
+      } catch {
+        setArticle(articles.find((item) => item.name === name));
+      }
+    };
+
+    loadArticle();
+  }, [name]);
 
   if (!article) {
     return (

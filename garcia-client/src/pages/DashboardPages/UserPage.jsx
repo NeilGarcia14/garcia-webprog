@@ -31,6 +31,12 @@ import {
   DeleteOutlined as DeleteIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
+import {
+  createUser,
+  deleteUser,
+  getUsers,
+  updateUser,
+} from "../../services/api";
 
 const modalStyle = {
   position: "absolute",
@@ -187,7 +193,7 @@ const rows = [
   },
 ];
 
-const columns = [
+const buildColumns = (handleOpenDialog, handleDeleteUser) => [
   {
     field: "name",
     headerName: "User",
@@ -355,6 +361,35 @@ export default function UsersPage() {
   });
   const [formErrors, setFormErrors] = useState({});
 
+  const mapUserRow = (user) => {
+    const firstName = user.firstName || "";
+    const lastName = user.lastName || "";
+    const name = `${firstName} ${lastName}`.trim() || user.username || user.email;
+    const role = user.type || user.role || "Viewer";
+    const status = user.isActive ? "Active" : "Inactive";
+
+    return {
+      id: user._id,
+      firstName,
+      lastName,
+      name,
+      email: user.email,
+      username: user.username || "",
+      role,
+      status,
+      contactNumber: user.contactNumber || "",
+      age: user.age || "",
+      gender: user.gender || "",
+      joined: new Date(user.createdAt || Date.now()).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }),
+      initials: `${firstName[0] || name[0] || "U"}${lastName[0] || ""}`.toUpperCase(),
+      avatarColor: "#32cd32",
+    };
+  };
+
   // Load users on component mount
   useEffect(() => {
     loadUsers();
@@ -364,9 +399,8 @@ export default function UsersPage() {
   const loadUsers = async () => {
     try {
       setLoading(true);
-      // Replace with your actual API endpoint
-      const data = rows; // Fallback to mock data for now
-      setAllUsers(data);
+      const data = await getUsers();
+      setAllUsers(data.users.map(mapUserRow));
     } catch (error) {
       console.error("Error fetching users:", error);
     } finally {
@@ -411,16 +445,16 @@ export default function UsersPage() {
     if (user) {
       setEditingId(user.id);
       setFormData({
-        firstName: user.name.split(" ")[0],
-        lastName: user.name.split(" ").slice(1).join(" "),
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
-        username: user.email.split("@")[0],
-        password: "", // Track if editing
-        contactNumber: "",
-        age: "",
+        username: user.username,
+        password: "",
+        contactNumber: user.contactNumber,
+        age: user.age,
         role: user.role,
         status: user.status,
-        gender: "",
+        gender: user.gender,
       });
     } else {
       setEditingId(null);
@@ -452,43 +486,27 @@ export default function UsersPage() {
 
     try {
       setLoading(true);
-      const fullName = `${formData.firstName} ${formData.lastName}`;
-      const newUser = {
-        id: editingId || Math.max(...allUsers.map((u) => u.id), 0) + 1,
-        name: fullName,
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         email: formData.email,
-        role: formData.role,
-        status: formData.status,
-        joined: editingId
-          ? allUsers.find((u) => u.id === editingId)?.joined
-          : new Date().toLocaleDateString("en-US", {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            }),
-        initials: `${formData.firstName[0]}${formData.lastName[0]}`.toUpperCase(),
-        avatarColor: [
-          "#32cd32",
-          "#22d3ee",
-          "#a78bfa",
-          "#f472b6",
-          "#818cf8",
-          "#2dd4bf",
-          "#06b6d4",
-          "#84cc16",
-        ][Math.floor(Math.random() * 8)],
+        username: formData.username,
+        password: formData.password,
+        contactNumber: formData.contactNumber,
+        age: formData.age ? Number(formData.age) : undefined,
+        gender: formData.gender,
+        type: formData.role,
+        isActive: formData.status !== "Inactive",
       };
 
       if (editingId) {
-        // Update user
-        setAllUsers(allUsers.map((u) => (u.id === editingId ? newUser : u)));
+        await updateUser(editingId, payload);
       } else {
-        // Add new user
-        setAllUsers([...allUsers, newUser]);
+        await createUser(payload);
       }
 
-      handleClose(); // Use handleClose instead of handleCloseDialog
-      loadUsers(); // Reload users after save
+      handleClose();
+      loadUsers();
     } catch (error) {
       console.error("Error saving user:", error);
     } finally {
@@ -498,8 +516,8 @@ export default function UsersPage() {
 
   const handleDeleteUser = async (id) => {
     try {
-      setAllUsers(allUsers.filter((u) => u.id !== id));
-      loadUsers(); // Reload users after delete
+      await deleteUser(id);
+      loadUsers();
     } catch (error) {
       console.error("Error deleting user:", error);
     }
@@ -508,18 +526,13 @@ export default function UsersPage() {
   const handleToggleActive = async (id, isActive) => {
     try {
       await updateUser(id, { isActive: !isActive });
-      loadUsers(); // Reload users after toggling
+      loadUsers();
     } catch (error) {
       console.error("Error toggling user status:", error);
     }
   };
 
-  // Placeholder for API update function
-  const updateUser = async (id, updates) => {
-    // Replace with your actual API endpoint
-    // Example: await fetch(`/api/users/${id}`, { method: 'PUT', body: JSON.stringify(updates) })
-    return Promise.resolve();
-  };
+  const columns = buildColumns(handleOpenDialog, handleDeleteUser);
 
   const filtered = allUsers.filter((r) => {
     const searchLower = search.toLowerCase();
@@ -636,7 +649,7 @@ export default function UsersPage() {
       >
         {[
           {
-            label: `All Users: ${rows.length}`,
+            label: `All Users: ${allUsers.length}`,
             bg: "rgba(255,255,255,0.05)",
             color: "#94a3b8",
             border: "rgba(255,255,255,0.08)",

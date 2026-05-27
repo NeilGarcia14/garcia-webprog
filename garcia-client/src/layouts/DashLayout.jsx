@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
@@ -22,6 +22,7 @@ import {
   Dashboard as DashboardIcon,
   BarChart as BarChartIcon,
   People as PeopleIcon,
+  Article as ArticleIcon,
   Menu as MenuIcon,
   ChevronLeft as ChevronLeftIcon,
   NotificationsNone as NotificationsIcon,
@@ -40,9 +41,10 @@ const darkTheme = createTheme({
 const DRAWER_WIDTH = 220;
 const MINI_WIDTH = 64;
 
-const navItems = [
+const baseNavItems = [
   { label: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
   { label: "Reports", icon: <BarChartIcon />, path: "/dashboard/reports" },
+  { label: "Articles", icon: <ArticleIcon />, path: "/dashboard/articles" },
   { label: "Users", icon: <PeopleIcon />, path: "/dashboard/users" },
 ];
 
@@ -52,6 +54,14 @@ export default function DashLayout() {
   const location = useLocation();
   const isMobile = useMediaQuery("(max-width:768px)");
   const drawerWidth = open ? DRAWER_WIDTH : MINI_WIDTH;
+  const userType = localStorage.getItem("type");
+  const navItems = baseNavItems.filter((item) => item.path !== "/dashboard/users" || userType !== "Editor");
+
+  useEffect(() => {
+    if (userType === "Editor" && location.pathname === "/dashboard/users") {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [location.pathname, navigate, userType]);
 
   return (
     <ThemeProvider theme={darkTheme}>
