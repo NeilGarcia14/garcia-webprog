@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Box,
   Card,
@@ -31,6 +31,18 @@ import {
   DeleteOutlined as DeleteIcon,
   Close as CloseIcon,
 } from "@mui/icons-material";
+
+const modalStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 760,
+  bgColor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
 
 const statusStyle = {
   Active: {
@@ -326,6 +338,9 @@ export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [allUsers, setAllUsers] = useState([]);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -339,8 +354,25 @@ export default function UsersPage() {
     gender: "",
   });
   const [formErrors, setFormErrors] = useState({});
-  const [editingId, setEditingId] = useState(null);
-  const [allUsers, setAllUsers] = useState(rows);
+
+  // Load users on component mount
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  // Load users from API
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      // Replace with your actual API endpoint
+      const data = rows; // Fallback to mock data for now
+      setAllUsers(data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Validation rules
   const validateForm = () => {
@@ -383,7 +415,7 @@ export default function UsersPage() {
         lastName: user.name.split(" ").slice(1).join(" "),
         email: user.email,
         username: user.email.split("@")[0],
-        password: "",
+        password: "", // Track if editing
         contactNumber: "",
         age: "",
         role: user.role,
@@ -409,52 +441,84 @@ export default function UsersPage() {
     setOpenDialog(true);
   };
 
-  const handleCloseDialog = () => {
+  const handleClose = () => {
     setOpenDialog(false);
     setFormErrors({});
+    setEditingId(null);
   };
 
-  const handleSaveUser = () => {
+  const handleSaveUser = async () => {
     if (!validateForm()) return;
 
-    const fullName = `${formData.firstName} ${formData.lastName}`;
-    const newUser = {
-      id: editingId || Math.max(...allUsers.map((u) => u.id), 0) + 1,
-      name: fullName,
-      email: formData.email,
-      role: formData.role,
-      status: formData.status,
-      joined: editingId
-        ? allUsers.find((u) => u.id === editingId)?.joined
-        : new Date().toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          }),
-      initials: `${formData.firstName[0]}${formData.lastName[0]}`.toUpperCase(),
-      avatarColor: [
-        "#32cd32",
-        "#22d3ee",
-        "#a78bfa",
-        "#f472b6",
-        "#818cf8",
-        "#2dd4bf",
-        "#06b6d4",
-        "#84cc16",
-      ][Math.floor(Math.random() * 8)],
-    };
+    try {
+      setLoading(true);
+      const fullName = `${formData.firstName} ${formData.lastName}`;
+      const newUser = {
+        id: editingId || Math.max(...allUsers.map((u) => u.id), 0) + 1,
+        name: fullName,
+        email: formData.email,
+        role: formData.role,
+        status: formData.status,
+        joined: editingId
+          ? allUsers.find((u) => u.id === editingId)?.joined
+          : new Date().toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            }),
+        initials: `${formData.firstName[0]}${formData.lastName[0]}`.toUpperCase(),
+        avatarColor: [
+          "#32cd32",
+          "#22d3ee",
+          "#a78bfa",
+          "#f472b6",
+          "#818cf8",
+          "#2dd4bf",
+          "#06b6d4",
+          "#84cc16",
+        ][Math.floor(Math.random() * 8)],
+      };
 
-    if (editingId) {
-      setAllUsers(allUsers.map((u) => (u.id === editingId ? newUser : u)));
-    } else {
-      setAllUsers([...allUsers, newUser]);
+      if (editingId) {
+        // Update user
+        setAllUsers(allUsers.map((u) => (u.id === editingId ? newUser : u)));
+      } else {
+        // Add new user
+        setAllUsers([...allUsers, newUser]);
+      }
+
+      handleClose(); // Use handleClose instead of handleCloseDialog
+      loadUsers(); // Reload users after save
+    } catch (error) {
+      console.error("Error saving user:", error);
+    } finally {
+      setLoading(false);
     }
-
-    handleCloseDialog();
   };
 
-  const handleDeleteUser = (id) => {
-    setAllUsers(allUsers.filter((u) => u.id !== id));
+  const handleDeleteUser = async (id) => {
+    try {
+      setAllUsers(allUsers.filter((u) => u.id !== id));
+      loadUsers(); // Reload users after delete
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
+  };
+
+  const handleToggleActive = async (id, isActive) => {
+    try {
+      await updateUser(id, { isActive: !isActive });
+      loadUsers(); // Reload users after toggling
+    } catch (error) {
+      console.error("Error toggling user status:", error);
+    }
+  };
+
+  // Placeholder for API update function
+  const updateUser = async (id, updates) => {
+    // Replace with your actual API endpoint
+    // Example: await fetch(`/api/users/${id}`, { method: 'PUT', body: JSON.stringify(updates) })
+    return Promise.resolve();
   };
 
   const filtered = allUsers.filter((r) => {
@@ -762,7 +826,7 @@ export default function UsersPage() {
       {/* Add/Edit User Dialog */}
       <Dialog
         open={openDialog}
-        onClose={handleCloseDialog}
+        onClose={handleClose}
         maxWidth="sm"
         fullWidth
         PaperProps={{
@@ -786,7 +850,7 @@ export default function UsersPage() {
         >
           {editingId ? "Edit User" : "Add New User"}
           <IconButton
-            onClick={handleCloseDialog}
+            onClick={handleClose}
             sx={{ color: "#475569", "&:hover": { color: "#32cd32" } }}
           >
             <CloseIcon />
@@ -1009,7 +1073,7 @@ export default function UsersPage() {
         <Divider sx={{ borderColor: "rgba(255,255,255,0.08)" }} />
         <DialogActions sx={{ p: 2, gap: 1 }}>
           <Button
-            onClick={handleCloseDialog}
+            onClick={handleClose}
             sx={{
               color: "#475569",
               fontFamily: "'Syne', sans-serif",
@@ -1022,6 +1086,7 @@ export default function UsersPage() {
           <Button
             onClick={handleSaveUser}
             variant="contained"
+            disabled={loading}
             sx={{
               bgcolor: "#32cd32",
               color: "#000",
