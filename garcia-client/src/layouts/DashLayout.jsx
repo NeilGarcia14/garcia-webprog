@@ -12,6 +12,8 @@ import {
   ListItemIcon,
   ListItemText,
   IconButton,
+  Menu,
+  MenuItem,
   CssBaseline,
   Avatar,
   Tooltip,
@@ -50,6 +52,7 @@ const baseNavItems = [
 
 export default function DashLayout() {
   const [open, setOpen] = useState(true);
+  const [settingsAnchor, setSettingsAnchor] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useMediaQuery("(max-width:768px)");
@@ -124,11 +127,37 @@ export default function DashLayout() {
               <Tooltip title="Settings">
                 <IconButton
                   size="small"
+                  onClick={(e) => setSettingsAnchor(e.currentTarget)}
                   sx={{ color: "#475569", "&:hover": { color: "#f97316" } }}
                 >
                   <SettingsIcon fontSize="small" />
                 </IconButton>
               </Tooltip>
+              <Menu
+                anchorEl={settingsAnchor}
+                open={Boolean(settingsAnchor)}
+                onClose={() => setSettingsAnchor(null)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    setSettingsAnchor(null);
+                    navigate('/dashboard');
+                  }}
+                >
+                  Settings
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    setSettingsAnchor(null);
+                    localStorage.clear();
+                    navigate('/auth/signin', { replace: true });
+                  }}
+                >
+                  Logout
+                </MenuItem>
+              </Menu>
               <Avatar
                 sx={{
                   width: 32,
@@ -298,53 +327,6 @@ export default function DashLayout() {
               );
             })}
           </List>
-
-          {/* Bottom user card */}
-          {open && (
-            <Box
-              sx={{
-                mx: 1,
-                mb: 2,
-                p: 1.5,
-                borderRadius: "10px",
-                border: "1px solid rgba(249,115,22,0.15)",
-                bgcolor: "rgba(249,115,22,0.04)",
-                flexShrink: 0,
-              }}
-            >
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.2 }}>
-                <Avatar
-                  sx={{
-                    width: 32,
-                    height: 32,
-                    bgcolor: "#323acd",
-                    color: "#000",
-                    fontSize: "0.7rem",
-                    fontFamily: "'Syne', sans-serif",
-                    fontWeight: 800,
-                  }}
-                >
-                  AD
-                </Avatar>
-                <Box>
-                  <Typography
-                    sx={{
-                      fontFamily: "'Syne', sans-serif",
-                      fontSize: "0.78rem",
-                      fontWeight: 700,
-                      color: "#f1f5f9",
-                      lineHeight: 1.2,
-                    }}
-                  >
-                    Admin
-                  </Typography>
-                  <Typography sx={{ fontSize: "0.68rem", color: "#475569" }}>
-                    admin@national-u.dev
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          )}
         </Drawer>
 
         {/* Main Content — takes all remaining width */}
