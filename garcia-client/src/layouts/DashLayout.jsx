@@ -344,6 +344,6 @@ export default function DashLayout() {
           <Outlet />
         </Box>
       </Box>
-    </ThemeProvider>
+    </ThemeProvider>a
   );
 }
