@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: garcia-server
+    runtime: node
+    rootDir: garcia-server
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGO_DB_NAME
+        value: garcia-client
+      - key: MONGO_URI
+        sync: false
+      - key: MONGO_DIRECT_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        sync: false

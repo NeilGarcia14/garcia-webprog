@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Box,
   Card,
@@ -37,18 +37,6 @@ import {
   getUsers,
   updateUser,
 } from "../../services/api";
-
-const modalStyle = {
-  position: "absolute",
-  top: "50%",
-  left: "50%",
-  transform: "translate(-50%, -50%)",
-  width: 760,
-  bgColor: "background.paper",
-  border: "2px solid #000",
-  boxShadow: 24,
-  p: 4,
-};
 
 const statusStyle = {
   Active: {
@@ -89,109 +77,6 @@ const roleStyle = {
     border: "rgba(167,139,250,0.2)",
   },
 };
-
-const rows = [
-  {
-    id: 1,
-    name: "Herzsel Datul",
-    email: "herzsel@example.com",
-    role: "Admin",
-    status: "Active",
-    joined: "Jan 15, 2024",
-    initials: "AB",
-    avatarColor: "#32cd32",
-  },
-  {
-    id: 2,
-    name: "Ben Tenorio",
-    email: "ben@example.com",
-    role: "Editor",
-    status: "Active",
-    joined: "Feb 3, 2024",
-    initials: "BC",
-    avatarColor: "#22d3ee",
-  },
-  {
-    id: 3,
-    name: "LeBron Germs",
-    email: "lebron@example.com",
-    role: "Viewer",
-    status: "Inactive",
-    joined: "Mar 20, 2024",
-    initials: "CT",
-    avatarColor: "#a78bfa",
-  },
-  {
-    id: 4,
-    name: "Andy Lim",
-    email: "andy@example.com",
-    role: "Manager",
-    status: "Active",
-    joined: "Apr 8, 2024",
-    initials: "DL",
-    avatarColor: "#34d399",
-  },
-  {
-    id: 5,
-    name: "Malou Manay",
-    email: "malou@example.com",
-    role: "Editor",
-    status: "Pending",
-    joined: "Apr 22, 2024",
-    initials: "ES",
-    avatarColor: "#f472b6",
-  },
-  {
-    id: 6,
-    name: "Four of Spades",
-    email: "spades@example.com",
-    role: "Viewer",
-    status: "Active",
-    joined: "May 10, 2024",
-    initials: "FO",
-    avatarColor: "#818cf8",
-  },
-  {
-    id: 7,
-    name: "Bato Dela Rosa",
-    email: "bato@example.com",
-    role: "Editor",
-    status: "Active",
-    joined: "Jun 1, 2024",
-    initials: "GG",
-    avatarColor: "#2dd4bf",
-  },
-  {
-    id: 8,
-    name: "Kanibalismo Fitter",
-    email: "fitter@example.com",
-    role: "Viewer",
-    status: "Inactive",
-    joined: "Jun 18, 2024",
-    initials: "HS",
-    avatarColor: "#32cd32",
-  },
-  {
-    id: 9,
-    name: "Tol Fu",
-    email: "Tulfo@example.com",
-    role: "Admin",
-    status: "Active",
-    joined: "Jul 5, 2020",
-    initials: "ID",
-    avatarColor: "#06b6d4",
-  },
-  {
-    id: 10,
-    name: "Bruno Marce",
-    email: "bruno@example.com",
-    role: "Manager",
-    status: "Pending",
-    joined: "Jul 25, 2019",
-    initials: "JR",
-    avatarColor: "#84cc16",
-  },
-];
 
 const buildColumns = (handleOpenDialog, handleDeleteUser) => [
   {
@@ -390,13 +275,8 @@ export default function UsersPage() {
     };
   };
 
-  // Load users on component mount
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
   // Load users from API
-  const loadUsers = async () => {
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       const data = await getUsers();
@@ -406,7 +286,12 @@ export default function UsersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Load users on component mount
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
 
   // Validation rules
   const validateForm = () => {
@@ -520,15 +405,6 @@ export default function UsersPage() {
       loadUsers();
     } catch (error) {
       console.error("Error deleting user:", error);
-    }
-  };
-
-  const handleToggleActive = async (id, isActive) => {
-    try {
-      await updateUser(id, { isActive: !isActive });
-      loadUsers();
-    } catch (error) {
-      console.error("Error toggling user status:", error);
     }
   };
 

@@ -710,10 +710,6 @@ export default function ReportsPage() {
     }
   };
 
-  const handleOpenPrintDialog = () => {
-    setPrintDialogOpen(true);
-  };
-
   const handleClosePrintDialog = () => {
     setPrintDialogOpen(false);
   };
